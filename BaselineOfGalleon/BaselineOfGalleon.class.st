@@ -20,6 +20,6 @@ BaselineOfGalleon >> baseline: spec [
     	with: [  spec repository: 'github://ObjectProfile/Roassal2/src'].
 		spec
 			package: 'Seal';
-			group: 'default' with: #('Seal' 'PhaROS' 'Roassal2')
+			group: 'default' with: #('Galleon' 'PhaROS' 'Roassal2')
 		]
 ]

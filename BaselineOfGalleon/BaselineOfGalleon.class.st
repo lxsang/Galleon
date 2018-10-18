@@ -16,10 +16,11 @@ BaselineOfGalleon >> baseline: spec [
 				versionString: #'stable';
 				repository: 'http://smalltalkhub.com/mc/CAR/PhaROS/main'
 		].
-		 spec baseline: 'Roassal2'
-    	with: [  spec repository: 'github://ObjectProfile/Roassal2/src'].
+		 "spec baseline: 'Roassal2'
+    	with: [  spec repository: 'github://ObjectProfile/Roassal2/src']."
 		spec
 			package: 'Galleon';
-			group: 'default' with: #('Galleon' 'PhaROS' 'Roassal2')
+			package: 'Trachel';
+			group: 'default' with: #('Galleon' 'PhaROS' 'Trachel')
 		]
 ]

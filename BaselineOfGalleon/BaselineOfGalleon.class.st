@@ -16,11 +16,9 @@ BaselineOfGalleon >> baseline: spec [
 				versionString: #'stable';
 				repository: 'http://smalltalkhub.com/mc/CAR/PhaROS/main'
 		].
-		 "spec baseline: 'Roassal2'
-    	with: [  spec repository: 'github://ObjectProfile/Roassal2/src']."
 		spec
-			package: 'Trachel';
-			package: 'Galleon' with:[ spec requires: #('Trachel' ) ];
+			package: 'Galleon-External-Trachel';
+			package: 'Galleon' with:[ spec requires: #('Galleon-External-Trachel') ];
 			group: 'default' with: #('Galleon' 'PhaROS' )
 		]
 ]

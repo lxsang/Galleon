@@ -19,8 +19,7 @@ BaselineOfGalleon >> baseline: spec [
 		 "spec baseline: 'Roassal2'
     	with: [  spec repository: 'github://ObjectProfile/Roassal2/src']."
 		spec
-			package: 'Galleon';
-			package: 'Trachel';
-			group: 'default' with: #('Galleon' 'PhaROS' 'Trachel')
+			package: 'Galleon' with: #('Trachel');
+			group: 'default' with: #('Galleon' 'PhaROS' )
 		]
 ]

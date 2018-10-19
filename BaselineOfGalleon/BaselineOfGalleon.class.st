@@ -13,7 +13,7 @@ BaselineOfGalleon >> baseline: spec [
 		spec project: 'PhaROS' with: [ 
 			 spec
 				className: #ConfigurationOfPhaROS;
-				versionString: #'stable';
+				versionString: #'bleedingEdge';
 				repository: 'http://smalltalkhub.com/mc/CAR/PhaROS/main'
 		].
 		 spec baseline: 'Roassal2'

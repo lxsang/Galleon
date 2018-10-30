@@ -3,6 +3,8 @@ ROS based event driven control and visualization toolkit for Pharos. A video dem
 
 ![](https://github.com/lxsang/Galleon/raw/master/galleon.png)
 
+Galleon is developed on top of : [PhaROS](http://car.imt-lille-douai.fr/category/software/pharos/), a ROS based client for Pharo, it defines a set of control and visualization API that facilitates the development of robotic application from Pharo
+
 ## Installing
 
 ```smalltalk

@@ -76,6 +76,11 @@ RHRobotModelView >> initialize [
 	topic := '/robot_pose'.
 	radius := 0.25.
 	running := false.
+	self initializeModel.
+]
+
+{ #category : #initialization }
+RHRobotModelView >> initializeModel [
 	model := TREllipseShape new
 		color: Color red;
 		size: 0.25 / 0.05.
@@ -113,6 +118,14 @@ RHRobotModelView >> propList [
 					{(#name -> #topic).
 					(#type -> String)}
 				holder: self)}
+]
+
+{ #category : #sync }
+RHRobotModelView >> propertyChange: prop [
+	prop name = #topic ifFalse:[^self].
+	self desynchronize.
+	self initializeModel.
+	self synchronize.
 ]
 
 { #category : #accessing }

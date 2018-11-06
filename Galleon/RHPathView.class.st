@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'lines',
 		'goal',
-		'sub'
+		'sub',
+		'path_color'
 	],
 	#category : #'Galleon-GUI'
 }
@@ -18,6 +19,14 @@ RHPathView class >> readMe [
 RHPathView >> allShapes [
 	goal ifNil: [ ^ lines asArray  ].
 	^ lines asArray , {goal}
+]
+
+{ #category : #converting }
+RHPathView >> asJSONObject [
+	|d|
+	d := super asJSONObject.
+	d at: 'path_color' put: { self path_color r. self path_color g. self path_color b. self path_color a}.
+	^d	
 ]
 
 { #category : #sync }
@@ -53,13 +62,22 @@ RHPathView >> drawPath: aMsg [
 						ifNotNil: [ | line |
 							newPose := self getVertex: pose pose.
 							line := TRLineShape new from: lastPose to: newPose.
-							line color: Color red.
+							line color: self path_color .
 							lines add: line.
 							self canvas addShape: line.
 							self canvas push: line behind: goal.
 							lastPose := newPose ] "].
 			i := i + 1" ].
 	self canvas signalUpdate
+]
+
+{ #category : #converting }
+RHPathView >> fromJSONObject: obj [
+	super fromJSONObject: obj.
+	path_color ifNil: [ path_color := Color red ] ifNotNil: [ 
+		path_color := Color r: (path_color at:1)
+			g: (path_color at:2)  b: (path_color at:3)  alpha: (path_color at:4)
+	] 
 ]
 
 { #category : #'drawing-general' }
@@ -73,6 +91,7 @@ RHPathView >> initialize [
 	topic := '/move_base/GlobalPlanner/plan'.
 	localframe := 'map'.
 	lines := OrderedCollection new.
+	path_color := Color red.
 ]
 
 { #category : #accessing }
@@ -80,7 +99,17 @@ RHPathView >> name [
 	^ 'Pose Path view'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
+RHPathView >> path_color [
+	^ path_color
+]
+
+{ #category : #accessing }
+RHPathView >> path_color: anObject [
+	path_color := anObject
+]
+
+{ #category : #initialization }
 RHPathView >> propList [
 	^ super propList, { (RHProperty
 		from:
@@ -91,6 +120,11 @@ RHPathView >> propList [
 		from:
 			{(#name -> #topic).
 			(#type -> String)}
+		holder: self).
+	(RHProperty
+		from:
+			{(#name -> #path_color).
+			(#type -> Color)}
 		holder: self) }
 ]
 

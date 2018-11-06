@@ -20,7 +20,7 @@ RHProperty class >> from:t1 holder:t2 [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #converting }
 RHProperty >> asPropUIModel [
 	self type
 		caseOf:
@@ -46,6 +46,8 @@ RHProperty >> asPropUIModel [
 				-> [ ^ RHDropListPropModel new
 						for: self;
 						yourself ]).
+			(Color
+				-> [ ^ RHColorModel new for:self; yourself]).
 			(Boolean
 				-> [ self dataset: {true . false}.
 					^ RHDropListPropModel new

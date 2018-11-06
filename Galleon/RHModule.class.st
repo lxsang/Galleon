@@ -94,7 +94,13 @@ RHModule >> fromJSONObject: obj [
 	submodules := obj at: 'children'.
 	obj removeKey: 'class'.
 	obj removeKey: 'children'.
-	obj keysAndValuesDo: [ :k :v | (MessageSend receiver: self selector: (k , ':') asSymbol argument: v) value ].
+	obj keysAndValuesDo: [ :k :v | 
+		v class = Array ifTrue:[
+			(MessageSend receiver: self selector: (k , ':') asSymbol argument: v asColor) value
+		] ifFalse:[
+			(MessageSend receiver: self selector: (k , ':') asSymbol argument: v) value
+		]
+	].
 	"children"
 	submodules
 		do: [ :el | 

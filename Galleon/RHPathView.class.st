@@ -25,7 +25,7 @@ RHPathView >> allShapes [
 RHPathView >> asJSONObject [
 	|d|
 	d := super asJSONObject.
-	d at: 'path_color' put: { self path_color r. self path_color g. self path_color b. self path_color a}.
+	d at: 'path_color' put: self path_color asArray.
 	^d	
 ]
 
@@ -69,15 +69,6 @@ RHPathView >> drawPath: aMsg [
 							lastPose := newPose ] "].
 			i := i + 1" ].
 	self canvas signalUpdate
-]
-
-{ #category : #converting }
-RHPathView >> fromJSONObject: obj [
-	super fromJSONObject: obj.
-	path_color ifNil: [ path_color := Color red ] ifNotNil: [ 
-		path_color := Color r: (path_color at:1)
-			g: (path_color at:2)  b: (path_color at:3)  alpha: (path_color at:4)
-	] 
 ]
 
 { #category : #'drawing-general' }

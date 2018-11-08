@@ -44,22 +44,12 @@ RHRobotModelView >> drawArrowFrom: position orientation: orientation [
 	| offset ab newPos a b |
 	offset := self getOrientationOffset: orientation.
 	newPos := position + offset.
-	ab := self parent parent arrowHeadOffsetsFor: offset.
+	ab := self arrowHeadOffsetsFor: offset.
 	a := ab at: 1.
 	b := ab at: 2.
 	(self lines at: 1) from: position to: newPos.
 	(self lines at: 2) from: newPos to: (newPos x - (5 * a x)) @ (newPos y - (5 * a y)).
 	(self lines at: 3) from: newPos to: (newPos x - (5 * b x)) @ (newPos y - (5 * b y))
-]
-
-{ #category : #drawing }
-RHRobotModelView >> getOrientationOffset:orientation [
-	| quad yaw offset |
-	quad := PhaROSQuaternion from:  orientation.
-	yaw := 0 - quad asRPY yaw.
-	offset := yaw cos @ yaw sin.
-	offset := offset * 10.
-	^ offset
 ]
 
 { #category : #initialization }

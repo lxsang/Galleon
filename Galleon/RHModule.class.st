@@ -53,6 +53,39 @@ RHModule >> announcer [
 	^self parent announcer
 ]
 
+{ #category : #drawing }
+RHModule >> arrowFrom: aPoint orientation: orientation [
+		| offset ab newPos a b l|
+	l := OrderedCollection new.
+	offset := self getOrientationOffset: orientation.
+	newPos := aPoint + offset.
+	ab := self arrowHeadOffsetsFor: offset.
+	a := ab at: 1.
+	b := ab at: 2.
+	l add: ( TRLineShape new from: aPoint to: newPos).
+	l add: ( TRLineShape new from: newPos to: (newPos x - (5 * a x)) @ (newPos y - (5 * a y))).
+	l add: ( TRLineShape new from: newPos to: (newPos x - (5 * b x)) @ (newPos y - (5 * b y))).
+	^l
+	
+]
+
+{ #category : #drawing }
+RHModule >> arrowHeadOffsetsFor: offset [
+	| norm dx dy ud angle ax ay bx by |
+	dx := offset x.
+	dy := offset y.
+	norm := (dx * dx + (dy * dy)) sqrt.
+	ud := offset / norm.
+	angle := Float pi / 6.
+	ax := ud x * angle cos - (ud y * angle sin).
+	ay := ud x * angle sin + (ud y * angle cos).
+	bx := ud x * angle cos + (ud y * angle sin).
+	by := ud y * angle cos - (ud x * angle sin).
+	^ {(ax @ ay).
+	(bx @ by).
+	ud}
+]
+
 { #category : #export }
 RHModule >> asJSONObject [
 	|d prop val|
@@ -129,6 +162,16 @@ RHModule >> fromJSONObject: obj [
 			c := (el at: 'class') asClass  fromJSONObject: el.
 			self addChild: c ].
 	^ self
+]
+
+{ #category : #drawing }
+RHModule >> getOrientationOffset:orientation [
+	| quad yaw offset |
+	quad := PhaROSQuaternion from:  orientation.
+	yaw := 0 - quad asRPY yaw.
+	offset := yaw cos @ yaw sin.
+	offset := offset * 10.
+	^ offset
 ]
 
 { #category : #initialization }

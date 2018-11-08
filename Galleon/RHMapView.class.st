@@ -71,22 +71,6 @@ RHMapView >> name [
 	^ 'Grid Map view'
 ]
 
-{ #category : #'as yet unclassified' }
-RHMapView >> propList [
-	^super propList, {  
-	(RHProperty
-		from:
-			{(#name -> #localframe).
-			(#type -> String)}
-		holder: self).
-	(RHProperty
-		from:
-			{(#name -> #topic).
-			(#type -> String)}
-		holder: self)
-		}
-]
-
 { #category : #sync }
 RHMapView >> synchronize [
 	synchronizing := false.

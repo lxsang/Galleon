@@ -26,19 +26,9 @@ RHBatteryMonitor >> addDock: anAnnotation [
 	defaultDock := anAnnotation 
 ]
 
-{ #category : #converting }
-RHBatteryMonitor >> asJSONObject [
-	| d |
-	d := super asJSONObject.
-	d at: 'docking_topic' put: self docking_topic.
-	d at: 'max_voltage' put: self max_voltage.
-	d at: 'batteryStatus' put: self batteryStatus.
-	d at: 'automatic_dock_threshold' put: self automatic_dock_threshold.
-	^ d
-]
-
 { #category : #accessing }
 RHBatteryMonitor >> automatic_dock_threshold [
+	<galleonProperty: #Number>
 	^ automatic_dock_threshold
 ]
 
@@ -49,6 +39,7 @@ RHBatteryMonitor >> automatic_dock_threshold: anObject [
 
 { #category : #accessing }
 RHBatteryMonitor >> batteryStatus [
+	<galleonProperty: #Number>
 	^ batteryStatus
 ]
 
@@ -90,6 +81,7 @@ RHBatteryMonitor >> docking: anObject [
 
 { #category : #accessing }
 RHBatteryMonitor >> docking_topic [
+	<galleonProperty: #String>
 	^ docking_topic
 ]
 
@@ -127,6 +119,7 @@ RHBatteryMonitor >> isDocked: anObject [
 
 { #category : #accessing }
 RHBatteryMonitor >> max_voltage [
+	<galleonProperty: #Number>
 	^ max_voltage
 ]
 
@@ -151,37 +144,6 @@ RHBatteryMonitor >> monitor: msg [
 { #category : #accessing }
 RHBatteryMonitor >> name [
 	^ 'A Battery monitor'
-]
-
-{ #category : #initialization }
-RHBatteryMonitor >> propList [
-	^ super propList
-		,
-			{(RHProperty
-				from:
-					{(#name -> #topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #docking_topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #max_voltage).
-					(#type -> Number)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #batteryStatus).
-					(#type -> Number)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #automatic_dock_threshold ).
-					(#type -> Number)}
-				holder: self).}
 ]
 
 { #category : #accessing }

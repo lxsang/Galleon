@@ -21,14 +21,6 @@ RHGridView >> allShapes [
 	^ {lb. grid}
 ]
 
-{ #category : #converting }
-RHGridView >> asJSONObject [
-	|d|
-	d := super asJSONObject.
-	d at: 'spacing' put: self spacing.
-	^d
-]
-
 { #category : #drawing }
 RHGridView >> draw [
 	[ ^ self ] if: self parent isNil.
@@ -55,22 +47,15 @@ RHGridView >> name [
 	^ 'Grid view'
 ]
 
-{ #category : #initialization }
-RHGridView >> propList [
-	^ super propList ,{(RHProperty
-		from:
-			{(#name -> #spacing).
-			(#type -> Number)}
-		holder: self)}
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #event }
 RHGridView >> propertyChange: prop [
+	prop name = #spacing ifFalse:[^self].
 	self spacing: prop value.
 ]
 
 { #category : #accessing }
 RHGridView >> spacing [
+	<galleonProperty: #Number> 
 	^ spacing
 ]
 

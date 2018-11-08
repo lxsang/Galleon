@@ -15,16 +15,6 @@ RHWorld class >> readMe [
 My default frame is ''map'''
 ]
 
-{ #category : #converting }
-RHWorld >> asJSONObject [
-	|d|
-	d := super asJSONObject.
-	d at: 'resolution' put: self resolution.
-	d at: 'tf_lookup_service' put: self tf_lookup_service.
-	d at: 'use_external_tf_service' put: self use_external_tf_service.
-	^d
-]
-
 { #category : #drawing }
 RHWorld >> draw [
 	"| xtent xaxe yaxe |
@@ -49,32 +39,6 @@ RHWorld >> initialize [
 { #category : #accessing }
 RHWorld >> name [
 	^ 'World'
-]
-
-{ #category : #initialization }
-RHWorld >> propList [
-	^ super propList
-		,
-			{(RHProperty
-				from:
-					{(#name -> #use_external_tf_service).
-					(#type -> Boolean )}
-				holder: self).			
-			(RHProperty
-				from:
-					{(#name -> #tf_lookup_service).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #localframe).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #resolution).
-					(#type -> Number)}
-				holder: self)}
 ]
 
 { #category : #event }
@@ -138,6 +102,7 @@ RHWorld >> pushUp: el [
 
 { #category : #accessing }
 RHWorld >> resolution [
+	<galleonProperty: #Number> 
 	^ resolution
 ]
 
@@ -148,6 +113,7 @@ RHWorld >> resolution: anObject [
 
 { #category : #accessing }
 RHWorld >> tf_lookup_service [
+	<galleonProperty: #String> 
 	^ tf_lookup_service
 ]
 
@@ -158,6 +124,7 @@ RHWorld >> tf_lookup_service: anObject [
 
 { #category : #accessing }
 RHWorld >> use_external_tf_service [
+	<galleonProperty: #Boolean> 
 	^ use_external_tf_service
 ]
 

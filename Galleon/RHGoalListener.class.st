@@ -37,21 +37,9 @@ RHGoalListener >> addGoal: aGoal [
 	self publishGoals
 ]
 
-{ #category : #converting }
-RHGoalListener >> asJSONObject [
-	| d |
-	d := super asJSONObject.
-	d at: 'status_topic' put: self status_topic.
-	d at: 'goals_topic' put: self goals_topic.
-	d at: 'automatic_switch_goal' put: self automatic_switch_goal.
-	d at: 'next_goal_topic' put: self next_goal_topic.
-	d at: 'queueing_reached_goal' put: self queueing_reached_goal.
-	d at: 'goals_index_topic' put: self goals_index_topic .
-	^ d
-]
-
 { #category : #accessing }
 RHGoalListener >> automatic_switch_goal [
+	<galleonProperty: #Boolean> 
 	^ automatic_switch_goal
 ]
 
@@ -109,6 +97,7 @@ RHGoalListener >> goals [
 
 { #category : #accessing }
 RHGoalListener >> goals_index_topic [
+	<galleonProperty: #String> 
 	^ goals_index_topic
 ]
 
@@ -119,6 +108,7 @@ RHGoalListener >> goals_index_topic: anObject [
 
 { #category : #accessing }
 RHGoalListener >> goals_topic [
+	<galleonProperty: #String> 
 	^ goals_topic
 ]
 
@@ -189,54 +179,13 @@ RHGoalListener >> nextGoalIndex [
 
 { #category : #accessing }
 RHGoalListener >> next_goal_topic [
+	<galleonProperty: #String> 
 	^ next_goal_topic
 ]
 
 { #category : #accessing }
 RHGoalListener >> next_goal_topic: anObject [
 	next_goal_topic := anObject
-]
-
-{ #category : #initialization }
-RHGoalListener >> propList [
-	^ super propList
-		,
-			{(RHProperty
-				from:
-					{(#name -> #queueing_reached_goal ).
-					(#type -> Boolean)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #next_goal_topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #automatic_switch_goal).
-					(#type -> Boolean)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #status_topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #goals_topic).
-					(#type -> String)}
-				holder: self).
-			(RHProperty 
-				from:
-					{
-						(#name -> #goals_index_topic).
-						(#type -> String)
-					} holder: self)}
 ]
 
 { #category : #'as yet unclassified' }
@@ -285,6 +234,7 @@ RHGoalListener >> publishGoals [
 
 { #category : #accessing }
 RHGoalListener >> queueing_reached_goal [
+	<galleonProperty: #Boolean> 
 	^ queueing_reached_goal
 ]
 
@@ -352,6 +302,7 @@ RHGoalListener >> statusCallback: msg [
 
 { #category : #accessing }
 RHGoalListener >> status_topic [
+	<galleonProperty: #String> 
 	^ status_topic
 ]
 

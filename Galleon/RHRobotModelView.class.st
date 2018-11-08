@@ -17,14 +17,6 @@ RHRobotModelView class >> readMe [
 The transformation used: world''s frame --> my frame'
 ]
 
-{ #category : #converting }
-RHRobotModelView >> asJSONObject [
-	|d|
-	d := super asJSONObject.
-	d at: 'radius' put: self radius.
-	^d	
-]
-
 { #category : #sync }
 RHRobotModelView >> desynchronize [
 	self undraw.
@@ -104,22 +96,6 @@ RHRobotModelView >> name [
 	^ 'Robot model view'
 ]
 
-{ #category : #initialization }
-RHRobotModelView >> propList [
-	^ super propList
-		,
-			{(RHProperty
-				from:
-					{(#name -> #radius).
-					(#type -> Number)}
-				holder: self).
-			(RHProperty
-				from:
-					{(#name -> #topic).
-					(#type -> String)}
-				holder: self)}
-]
-
 { #category : #sync }
 RHRobotModelView >> propertyChange: prop [
 	prop name = #topic ifFalse:[^self].
@@ -130,6 +106,7 @@ RHRobotModelView >> propertyChange: prop [
 
 { #category : #accessing }
 RHRobotModelView >> radius [
+	<galleonProperty: #Number>
 	^ radius
 ]
 

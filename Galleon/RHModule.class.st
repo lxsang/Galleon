@@ -26,7 +26,18 @@ RHModule class >> fromJSONObject: obj [
 	^self new fromJSONObject: obj; yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
+RHModule class >> queryInstanceVars [
+	|arr|
+	arr := Array new:0.
+	(self superclass respondsTo: #queryInstanceVars) ifTrue:[
+		arr := self superclass queryInstanceVars
+	].
+	arr := arr , (self instanceVariables collect:[:e| e -> self]).
+	^arr
+]
+
+{ #category : #comment }
 RHModule class >> readMe [
 	^'Module documentation'
 ]
@@ -44,10 +55,20 @@ RHModule >> announcer [
 
 { #category : #export }
 RHModule >> asJSONObject [
-	^ {('topic' -> self topic).
-	('class' -> self className).
-	('localframe' -> self localframe).
-	('children' -> (self children collect: [ :el | el asJSONObject ]) asArray )} asDictionary
+	|d prop val|
+	d := Dictionary new.
+	d at: 'class' put: self className.
+	d at: 'children' put: (self children collect: [ :el | el asJSONObject ]) asArray.
+	self class queryInstanceVars do:[ :v|
+		"check if we has a getter"
+		prop := self propertyTypeOf: v.
+		prop ifNotNil:[
+			val := (MessageSend receiver: self selector:prop name)  value.
+			val class = Color ifTrue:[val := val asArray].
+			d at:prop name asString put: val
+		]
+	].
+	^d
 ]
 
 { #category : #services }
@@ -119,6 +140,7 @@ RHModule >> initialize [
 
 { #category : #accessing }
 RHModule >> localframe [
+	<galleonProperty: #String>
 	^ localframe
 ]
 
@@ -132,6 +154,11 @@ RHModule >> lock [
 	^ self parent lock
 ]
 
+{ #category : #sync }
+RHModule >> name [
+	^ 'A Galleon visualization module'
+]
+
 { #category : #accessing }
 RHModule >> parent [
 	^ parent
@@ -142,17 +169,43 @@ RHModule >> parent: anObject [
 	parent := anObject
 ]
 
-{ #category : #initialization }
+{ #category : #querying }
 RHModule >> propList [
-	^ {(RHProperty
+	|list prop|
+	"the prop list is automatically from pragma"
+	"first query all the install variable"
+	list := OrderedCollection new.
+	list add: (RHProperty
 		from:
 			{(#name -> #doc).
 			(#type -> Text)}
-		holder: self)}
+		holder: self).
+	self class queryInstanceVars do:[ :v|
+		"check if we has a getter"
+		prop := self propertyTypeOf: v.
+		prop ifNotNil:[ list add: prop ]
+	].
+	^list
 ]
 
 { #category : #event }
 RHModule >> propertyChange: prop [
+]
+
+{ #category : #querying }
+RHModule >> propertyTypeOf: v [
+	|pragmas arg|
+	(self respondsTo:v key) ifFalse:[^nil].
+	pragmas := (v value >> v key) pragmas.
+	pragmas isEmpty ifTrue:[^nil].
+	pragmas first key = #galleonProperty: ifFalse:[^nil].
+	pragmas first arguments size = 1 ifFalse:[^nil].
+	arg := pragmas first arguments at: 1.
+	^(RHProperty
+		from:
+			{(#name -> v key).
+			(#type -> arg asClass)}
+		holder: self)
 ]
 
 { #category : #accessing }
@@ -198,6 +251,7 @@ RHModule >> tfListener [
 
 { #category : #accessing }
 RHModule >> topic [
+	<galleonProperty: #String>
 	^ topic
 ]
 

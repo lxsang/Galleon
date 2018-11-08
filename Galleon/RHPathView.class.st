@@ -21,14 +21,6 @@ RHPathView >> allShapes [
 	^ lines asArray , {goal}
 ]
 
-{ #category : #converting }
-RHPathView >> asJSONObject [
-	|d|
-	d := super asJSONObject.
-	d at: 'path_color' put: self path_color asArray.
-	^d	
-]
-
 { #category : #sync }
 RHPathView >> desynchronize [
 	super desynchronize.
@@ -92,31 +84,13 @@ RHPathView >> name [
 
 { #category : #accessing }
 RHPathView >> path_color [
+	<galleonProperty: #Color> 
 	^ path_color
 ]
 
 { #category : #accessing }
 RHPathView >> path_color: anObject [
 	path_color := anObject
-]
-
-{ #category : #initialization }
-RHPathView >> propList [
-	^ super propList, { (RHProperty
-		from:
-			{(#name -> #localframe).
-			(#type -> String)}
-		holder: self).
-	(RHProperty
-		from:
-			{(#name -> #topic).
-			(#type -> String)}
-		holder: self).
-	(RHProperty
-		from:
-			{(#name -> #path_color).
-			(#type -> Color)}
-		holder: self) }
 ]
 
 { #category : #sync }

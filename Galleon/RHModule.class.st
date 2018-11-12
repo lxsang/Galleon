@@ -167,8 +167,12 @@ RHModule >> fromJSONObject: obj [
 { #category : #drawing }
 RHModule >> getOrientationOffset:orientation [
 	| quad yaw offset |
-	quad := PhaROSQuaternion from:  orientation.
-	yaw := 0 - quad asRPY yaw.
+	orientation isNumber ifTrue:[
+		yaw := 0 - orientation
+	] ifFalse:[
+		quad := PhaROSQuaternion from:  orientation.
+		yaw := 0 - quad asRPY yaw.
+	].
 	offset := yaw cos @ yaw sin.
 	offset := offset * 10.
 	^ offset

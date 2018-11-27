@@ -132,6 +132,12 @@ RHModule >> desynchronize [
 	self undraw
 ]
 
+{ #category : #sync }
+RHModule >> desynchronizeAll [
+	self desynchronize.
+	self children do:[:c| c desynchronize].
+]
+
 { #category : #accessing }
 RHModule >> doc [
 	^ self class readMe

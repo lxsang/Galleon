@@ -123,6 +123,7 @@ RHViz >> canvasColor [
 
 { #category : #api }
 RHViz >> cleanup [
+	self worldModel desynchronizeAll.
 	self terminateAllProcesses. 
 	OSProcess accessor restartChildWatcherProcess
 

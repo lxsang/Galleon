@@ -184,6 +184,15 @@ RHModule >> getOrientationOffset:orientation [
 	^ offset
 ]
 
+{ #category : #tf }
+RHModule >> initInternalTFListener [
+	self parent ifNil: [ ^self ].
+	self tfListener ifNotNil: [ ^self ].
+	self tfListener: ROSTFListener headfull.
+	self tfListener listen.
+	self tfListener waitForData
+]
+
 { #category : #initialization }
 RHModule >> initialize [
 	super initialize.
@@ -278,7 +287,7 @@ RHModule >> synchronizeAll [
 ]
 
 { #category : #tf }
-RHModule >> tfFrom: aFrame to: aNotherFrame [
+RHModule >> tfFrom: aFrame to: aNotherFrame do: aBlock [
 	| rs |
 	self parent use_external_tf_service
 		ifTrue: [ rs := self
@@ -286,20 +295,27 @@ RHModule >> tfFrom: aFrame to: aNotherFrame [
 				args: [ :msg | 
 					msg from: aFrame asString.
 					msg to: aNotherFrame asString ].
-			^ self tfListener tfToMatrix: rs transform transform ]
-		ifFalse: [ ^ self tfListener lookupTFFrom: aFrame asSymbol to: aNotherFrame asSymbol ]
+			^ aBlock value:( ROSTFListener tfToMatrix: rs transform transform )]
+		ifFalse: [
+			self tfListener ifNil: [ self initInternalTFListener ].
+			^ self tfListener tfFrom: aFrame to: aNotherFrame  doOnce: aBlock  ]
 ]
 
 { #category : #tf }
-RHModule >> tfFromParent [
+RHModule >> tfFromParentDo:aBlock [
 	self parent localframe asSymbol = self localframe asSymbol
 		ifTrue: [ ^ nil ].
-	^ self tfFrom: self localframe asSymbol  to: self parent localframe asSymbol
+	^ self tfFrom: self localframe asSymbol  to: self parent localframe asSymbol do: aBlock
 ]
 
 { #category : #accessing }
 RHModule >> tfListener [
 	^ self parent tfListener
+]
+
+{ #category : #accessing }
+RHModule >> tfListener: value [
+	^ self parent tfListener: value
 ]
 
 { #category : #accessing }
@@ -314,13 +330,14 @@ RHModule >> topic: anObject [
 ]
 
 { #category : #tf }
-RHModule >> translateFromParent [
-	| m |
+RHModule >> translateFromParentDo: aBlock [
 	self parent localframe asSymbol = self localframe asSymbol
-		ifTrue: [ ^ 0 @ 0 ].
-	m := self tfFromParent.
-	m ifNil: [ ^ 0 @ 0 ].
-	^ ((m at: 1 at: 4) / self parent resolution) rounded @ ((0 - (m at: 2 at: 4)) / self parent resolution) rounded
+		ifTrue: [ ^ aBlock value: 0 @ 0 ].
+	self tfFromParentDo: [ :m|
+		m ifNil: [ ^ aBlock value: 0 @ 0 ].
+		^ aBlock value:(((m at: 1 at: 4) / self parent resolution) rounded @ ((0 - (m at: 2 at: 4)) / self parent resolution) rounded)
+	].
+	
 ]
 
 { #category : #drawing }

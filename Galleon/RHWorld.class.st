@@ -32,7 +32,7 @@ RHWorld >> initialize [
 	super initialize.
 	localframe := 'map'.
 	tf_lookup_service  := '/tf_lookup'.
-	use_external_tf_service := true.
+	self use_external_tf_service: false.
 	resolution := 0.05
 ]
 
@@ -130,5 +130,14 @@ RHWorld >> use_external_tf_service [
 
 { #category : #accessing }
 RHWorld >> use_external_tf_service: anObject [
-	use_external_tf_service := anObject
+	use_external_tf_service := anObject.
+	anObject ifTrue:[
+		self parent ifNil: [ ^self ].
+		self tfListener ifNotNil: [ 
+			self tfListener close.
+			self tfListener: nil	
+		]
+	] ifFalse:[
+		self initInternalTFListener.
+	].
 ]

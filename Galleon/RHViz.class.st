@@ -125,7 +125,9 @@ RHViz >> canvasColor [
 RHViz >> cleanup [
 	self worldModel desynchronizeAll.
 	self terminateAllProcesses. 
-	OSProcess accessor restartChildWatcherProcess
+	OSProcess accessor restartChildWatcherProcess.
+	tfListener ifNil: [ ^self ].
+	tfListener close.
 
 	
 ]
@@ -438,8 +440,7 @@ RHViz >> initialize [
 	lock := Semaphore forMutualExclusion.
 	super initialize.
 	proxy := PhaROSPackage new.
-	tfListener := ROSTFListener new.
-	tfListener proxy: proxy.
+	tfListener := nil.
 	mousestat := {(#name -> #normal)} asDictionary.
 	scale := 1.0.
 	annotations := OrderedCollection new.
@@ -865,7 +866,7 @@ RHViz >> toolboxMenu [
 						name: 'TF Tree';
 						description: 'Inspect the tf tree';
 						icon: Smalltalk ui icons hierarchy;
-						action: [ self tfListener tree view inspect ] ];
+						action: [ tfListener ifNotNil: [self tfListener getTreeDoOnce: [ :v| v view inspect ] ] ]];
 				addItem: [ :t2 | 
 					t2
 						name: 'Goal';

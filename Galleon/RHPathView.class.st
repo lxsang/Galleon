@@ -29,11 +29,13 @@ RHPathView >> desynchronize [
 
 { #category : #'drawing-general' }
 RHPathView >> draw: aMsg [
-	self lock critical: [ self drawPath: aMsg ]
+	self translateFromParentDo: [ :tl|
+		self lock critical: [ self drawPath: aMsg tl: tl ]
+	].
 ]
 
 { #category : #'drawing-general' }
-RHPathView >> drawPath: aMsg [
+RHPathView >> drawPath: aMsg tl: tl [
 	| lastPose newPose |
 	lastPose := nil.
 	lines do: [ :s | self canvas removeShape: s ].
@@ -42,7 +44,7 @@ RHPathView >> drawPath: aMsg [
 			goal color: Color green.
 			self canvas addShape: goal ].
 	aMsg poses isEmpty ifFalse:[
-		goal translateTo: (self getVertex: aMsg poses last pose)].
+		goal translateTo: (self getVertex: aMsg poses last pose tl: tl)].
 	lines := OrderedCollection new.
 	"i := 0."
 	aMsg poses
@@ -50,9 +52,9 @@ RHPathView >> drawPath: aMsg [
 			"i % 10 = 0
 				ifTrue: [ "
 					lastPose
-						ifNil: [ lastPose := self getVertex: pose pose ]
+						ifNil: [ lastPose := self getVertex: pose pose tl:tl ]
 						ifNotNil: [ | line |
-							newPose := self getVertex: pose pose.
+							newPose := self getVertex: pose pose tl: tl.
 							line := TRLineShape new from: lastPose to: newPose.
 							line color: self path_color .
 							lines add: line.
@@ -64,8 +66,8 @@ RHPathView >> drawPath: aMsg [
 ]
 
 { #category : #'drawing-general' }
-RHPathView >> getVertex: pose [
-	^ self translateFromParent + (((pose position x round:3) / self parent resolution) rounded @ ((0 - (pose position y round:3)) / self parent resolution) rounded)
+RHPathView >> getVertex: pose tl: tl [
+	^ tl + (((pose position x round:3) / self parent resolution) rounded @ ((0 - (pose position y round:3)) / self parent resolution) rounded)
 ]
 
 { #category : #initialization }

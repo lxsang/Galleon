@@ -58,12 +58,15 @@ RHMapView >> mapToBitmap: map [
 			cache colorAt: (i - 1) @ (j - 1) put: c ] ].
 	x := ((map info origin position x round: 3) / (map info resolution round: 2)) rounded.
 	y := ((map info origin position y abs round: 3) / (map info resolution round: 2) - map info height) rounded.
-	self lock
+	self translateFromParentDo: [ :tl|
+		self lock
 		critical: [ shape extent: cache extent.
 			shape form: cache.
 			shape translateTo: 0 @ 0.
-			shape translateBy: self translateFromParent + (x @ y).
-			self canvas signalUpdate ]	"self extent: cache extent."	"Smalltalk garbageCollect."
+			shape translateBy: tl + (x @ y).
+			self canvas signalUpdate ]
+	].
+		"self extent: cache extent."	"Smalltalk garbageCollect."
 ]
 
 { #category : #accessing }

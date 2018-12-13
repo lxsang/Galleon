@@ -31,7 +31,7 @@ RHWorld >> draw [
 RHWorld >> initialize [
 	super initialize.
 	localframe := 'map'.
-	tf_lookup_service  := '/tf_lookup'.
+	tf_lookup_service := '/tf_lookup'.
 	self use_external_tf_service: false.
 	resolution := 0.05
 ]

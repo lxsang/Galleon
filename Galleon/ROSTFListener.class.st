@@ -6,11 +6,70 @@ Class {
 		'tree',
 		'lock',
 		'isListening',
-		'callbacks',
-		'ones'
+		'callbacks'
 	],
 	#category : #'Galleon-ROS'
 }
+
+{ #category : #matrix }
+ROSTFListener class >> inverseOf: a4x4Matrix [
+	"you've been warned: this is not a good implementation c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 c11 c12 c13 c14 c15"
+	|a b c d e f g h i j k l m n o p  f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12 f13 f14 f15 f16 f17 det coll|
+	a := a4x4Matrix at:1 at:1.
+	b := a4x4Matrix at:1 at:2.
+	c := a4x4Matrix at:1 at:3.
+	d := a4x4Matrix at:1 at:4.
+	e := a4x4Matrix at:2 at:1.
+	f := a4x4Matrix at:2 at:2.
+	g := a4x4Matrix at:2 at:3.
+	h := a4x4Matrix at:2 at:4.
+	i := a4x4Matrix at:3 at:1.
+	j := a4x4Matrix at:3 at:2.
+	k := a4x4Matrix at:3 at:3.
+	l := a4x4Matrix at:3 at:4.
+	m := a4x4Matrix at:4 at:1.
+	n := a4x4Matrix at:4 at:2.
+	o := a4x4Matrix at:4 at:3.
+	p := a4x4Matrix at:4 at:4.
+	f0 := (k*p) - (l*o).
+	f1 := (j*p) - (l*n).
+	f2 := (j*o) - (k*n).
+	f3 := (g*p) - (h*o).
+	f4 := (f*p) - (h*n).
+	f5 := (f*o) - (g*n).
+	f6 := (g*l) - (h*k).
+	f7 := (f*l) - (h*j).
+	f8 := (f*k) - (g*j).
+	f9 := (i*p) - (l*m).
+	f10 := (i*o) - (k*m).
+	f11 := (e*p) - (h*m).
+	f12 := (e*o) - (g*m).
+	f13 := (e*l) - (h*i).
+	f14 := (e*k) - (g*i).
+	f15 := (i*n) - (j*m).
+	f16 := (e*n) - (f*m).
+	f17 := (e*j) - (f*i).
+	coll := OrderedCollection new.
+	coll add: (f*f0) - (g*f1) + (h*f2).
+	coll add: (c*f1) - (b*f0) - (d*f2).
+	coll add: (b*f3) - (c*f4) + (d*f5).
+	coll add: (c*f7) - (b*f6) - (d*f8).
+	coll add: (g*f9) - (e*f0) - (h*f10).
+	coll add: (a*f0) - (c*f9) + (d*f10).
+	coll add: (c*f11) - (a*f3) - (d*f12).
+	coll add: (a*f6) - (c*f13) + (d*f14).
+	coll add: (e*f1) - (f*f9) + (h*f15).
+	coll add: (b*f9) - (a*f1) - (d*f15).
+	coll add: (a*f4) - (b*f11) + (d*f16).
+	coll add: (b*f13) - (a*f7) - (d*f17).
+	coll add: (f*f10) - (e*f2) - (g*f15).
+	coll add: (a*f2) - (b*f10) + (c*f15).
+	coll add: (b*f12) - (a*f5) - (c*f16).
+	coll add: (a*f8) - (b*f14) + (c*f17).
+	det := (a*(coll at:1)) + (b*(coll at:5)) + (c*(coll at:9)) + (d*(coll at:13)).
+	det = 0 ifTrue:[^ self error: 'Matrix is not inversible'].
+	^(Matrix rows: 4 columns: 4 contents: coll ) / det
+]
 
 { #category : #matrix }
 ROSTFListener class >> matrixFromQuaternion: q [
@@ -67,8 +126,11 @@ ROSTFListener >> callbacks [
 
 { #category : #lookup }
 ROSTFListener >> getBTTFMatrix: path [
-	self shouldBeImplemented.
-	^(self getTBTFMatrix: path) inverse
+	|mat|
+	mat := self getTBTFMatrix: path.
+	mat ifNil: [ ^nil ].
+	^self class inverseOf:mat
+
 ]
 
 { #category : #matrix }
@@ -107,8 +169,11 @@ ROSTFListener >> getTreeDo: aBlock [
 { #category : #'master-action' }
 ROSTFListener >> getTreeDoOnce: aBlock [
 	<master>
-	ones add:(self getTreeDo: aBlock).
-	self iostream nextPut: (MessageSend receiver: nil selector: #getTree)
+	self lock critical: [
+		self iostream nextPut: (MessageSend receiver: nil selector: #getTree).
+		[self iostream atEnd] whileTrue: [ 1 milliSeconds wait ].
+		aBlock value: (self iostream next at:2)
+	]
 ]
 
 { #category : #initialization }
@@ -119,7 +184,6 @@ ROSTFListener >> initialize [
 	self isListening: false.
 	callbacks := OrderedCollection new.
 	proxy := PhaROSPackage new.
-	ones := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -138,14 +202,14 @@ ROSTFListener >> listen [
 	self isListening ifTrue: [ ^self ].
 	(self proxy controller node buildConnectionFor: '/tf' ) 
 		typedAs: 'tf2_msgs/TFMessage'; 
-								for: [ :msg | self updateTFTree:msg ];
+								for: [ :msg | tree update: msg ];
 								connect .
 	(self proxy controller node buildConnectionFor: '/tf_static' ) 
 		typedAs: 'tf2_msgs/TFMessage'; 
-								for: [ :msg | self updateTFTree:msg ];
+								for: [ :msg | tree update: msg ];
 								connect.
 	self isListening: true.
-	^self
+
 ]
 
 { #category : #scripts }
@@ -166,18 +230,32 @@ ROSTFListener >> lock: anObject [
 
 { #category : #lookup }
 ROSTFListener >> lookupTFFrom: sFrame to: tFrame [
-	| n path hash|
+	| n path hash |
 	self listen.
-	hash := (sFrame,'->', tFrame) hash.
-	lock
-		critical: [ n := self tree element: sFrame.
-			n ifNil: [ ^ nil ].
+	hash := (sFrame , '->' , tFrame) hash.
+	n := self tree element: sFrame.
+			n
+				ifNil: [ ^ self iostream
+						nextPut:
+							{hash.
+							nil} ].
 			path := n path: tFrame.
 			path isEmpty
 				ifTrue: [ n := self tree element: tFrame.
-					n ifNil: [ ^ nil ].
-					^self iostream nextPut:{hash. ( self getBTTFMatrix: (n path: sFrame))} ]
-				ifFalse: [ ^ self iostream nextPut:{hash. (self getTBTFMatrix: path)}] ]
+					n
+						ifNil: [ ^ self iostream
+								nextPut:
+									{hash.
+									nil} ].
+					^ self iostream
+						nextPut:
+							{hash.
+							(self getBTTFMatrix: (n path: sFrame))} ]
+				ifFalse: [ "]"
+					^ self iostream
+						nextPut:
+							{hash.
+							(self getTBTFMatrix: path)} ] 
 ]
 
 { #category : #matrix }
@@ -189,10 +267,10 @@ ROSTFListener >> matrixFromQuaternion: q [
 ROSTFListener >> pathFrom: sFrame to: tFrame [
 	| n path |
 	self listen.
-	lock
-		critical: [ n := self tree element: sFrame.
+	"lock
+		critical: [" n := self tree element: sFrame.
 			n ifNil: [ ^ {  } ].
-			^ path := n path: tFrame]
+			^ path := n path: tFrame"]"
 ]
 
 { #category : #accessing }
@@ -214,8 +292,16 @@ ROSTFListener >> tfFrom: aFrame to: otherFrame do:aBlock [
 { #category : #'master-action' }
 ROSTFListener >> tfFrom: aFrame to: otherFrame doOnce:aBlock [
 	<master>
-	ones add: (self tfFrom: aFrame to: otherFrame  do: aBlock).
-	self iostream nextPut: (MessageSend receiver: nil selector: #lookupTFFrom:to: arguments:{aFrame. otherFrame } )
+	|data|
+	"ones add: (self tfFrom: aFrame to: otherFrame  do: aBlock)."
+	self lock critical: [
+		self iostream nextPut: (MessageSend receiver: nil selector: #lookupTFFrom:to: arguments:{aFrame. otherFrame } ).
+		[self iostream atEnd] whileTrue: [ 1 milliSeconds wait ].
+		data := self iostream next.
+		aBlock value:(data at:2)
+	].
+	"block until there is data"
+	
 ]
 
 { #category : #matrix }
@@ -233,11 +319,6 @@ ROSTFListener >> tree: anObject [
 	tree := anObject
 ]
 
-{ #category : #scripts }
-ROSTFListener >> updateTFTree: msg [
-	lock critical: [ tree update: msg ].
-]
-
 { #category : #'master-action' }
 ROSTFListener >> waitForData [
 	|data cbs|
@@ -247,13 +328,7 @@ ROSTFListener >> waitForData [
 			data := self iostream next.
 			"check hash"
 			cbs := self callbacks select:[:e| e key = (data at:1)].
-			cbs do:[:e|
-				e value value: (data at:2).
-				(ones includes: e) ifTrue:[
-					callbacks remove: e.
-					ones remove:e
-				].
-				].
+			cbs do:[:e|e value value: (data at:2)]
 		] ifTrue:[100 milliSeconds  wait]]
 	] forkAt: Processor userBackgroundPriority  
 ]

@@ -188,9 +188,9 @@ RHModule >> getOrientationOffset:orientation [
 RHModule >> initInternalTFListener [
 	self parent ifNil: [ ^self ].
 	self tfListener ifNotNil: [ ^self ].
-	self tfListener: ROSTFListener headfull.
+	self tfListener: ROSTFListener new.
 	self tfListener listen.
-	self tfListener waitForData
+	"self tfListener waitForData"
 ]
 
 { #category : #initialization }
@@ -298,7 +298,7 @@ RHModule >> tfFrom: aFrame to: aNotherFrame do: aBlock [
 			^ aBlock value:( ROSTFListener tfToMatrix: rs transform transform )]
 		ifFalse: [
 			self tfListener ifNil: [ self initInternalTFListener ].
-			^ self tfListener tfFrom: aFrame to: aNotherFrame  doOnce: aBlock  ]
+			^ self tfListener tfFrom: aNotherFrame to: aFrame   doOnce: aBlock  ]
 ]
 
 { #category : #tf }

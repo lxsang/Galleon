@@ -32,7 +32,7 @@ RHWorld >> initialize [
 	super initialize.
 	localframe := 'map'.
 	tf_lookup_service := '/tf_lookup'.
-	self use_external_tf_service: false.
+	self use_external_tf_service: true.
 	resolution := 0.05
 ]
 

@@ -95,6 +95,13 @@ RHPathView >> path_color: anObject [
 	path_color := anObject
 ]
 
+{ #category : #event }
+RHPathView >> propertyChange: prop [
+	prop name = #topic ifFalse:[^self].
+	self desynchronize.
+	self synchronize.
+]
+
 { #category : #sync }
 RHPathView >> synchronize [
 	self topic ifNil: [ ^ self ].
